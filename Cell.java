@@ -11,6 +11,10 @@ public class Cell {
         return onFire;
     }
 
+    public void turnOffFire() {
+        this.onFire = false;
+    }
+
     public void setOnFire(boolean onFire) {
         this.onFire = onFire;
     }

@@ -1,8 +1,10 @@
 import java.util.Random;
 
+import java.io.IOException;
+
 public class SimFeu {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         // Simulation parameters
         int gridSize = 10; // Size of the grid (NxN)
         int initialFires = 5; // Number of initial fires
@@ -19,8 +21,8 @@ public class SimFeu {
             robots[i] = new Robot(i, 0, 0); // Robots start at headquarters (0,0)
         }
 
-        // Start the simulation
+        // Start the simulation interactively
         Simulation simulation = new Simulation(grid, robots, propagationRate);
-        simulation.run(10); // Run the simulation for 10 steps
+        simulation.runInteractive();
     }
 }
