@@ -1,8 +1,13 @@
 import java.util.Random;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Grid {
     private int size;
     private Cell[][] grid;
+    private int headquartersX = 0;
+    private int headquartersY = 0;
+    private List<Robot> robots = new ArrayList<>();
 
     public Grid(int size) {
         this.size = size;
@@ -25,6 +30,15 @@ public class Grid {
             int y = random.nextInt(size);
             grid[x][y].setOnFire(true);
         }
+    }
+
+    public void setHeadquarters(int x, int y) {
+        this.headquartersX = x;
+        this.headquartersY = y;
+    }
+
+    public void addRobot(Robot robot) {
+        robots.add(robot);
     }
 
     public Cell getCell(int x, int y) {
@@ -67,7 +81,11 @@ public class Grid {
     public void printGrid() {
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                if (grid[i][j].isOnFire()) {
+                if (i == headquartersX && j == headquartersY) {
+                    System.out.print("H ");
+                } else if (isRobotHere(i, j)) {
+                    System.out.print("R ");
+                } else if (grid[i][j].isOnFire()) {
                     System.out.print("F ");
                 } else {
                     System.out.print(". ");
@@ -75,5 +93,14 @@ public class Grid {
             }
             System.out.println();
         }
+    }
+
+    private boolean isRobotHere(int x, int y) {
+        for (Robot robot : robots) {
+            if (robot.getX() == x && robot.getY() == y) {
+                return true;
+            }
+        }
+        return false;
     }
 }

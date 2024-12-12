@@ -1,5 +1,9 @@
 import java.util.Random;
 
+// vision du robot? contraintes de terrain (cases d'eau, murs, etc.)?
+// limitation de communication entre les robots? soit par un nombre de cases et limite par distance
+
+
 public class Robot {
     private int id;
     private int x;
@@ -32,7 +36,7 @@ public class Robot {
         Cell currentCell = grid.getCell(x, y);
         if (currentCell.isOnFire()) {
             System.out.println("Robot " + id + " found fire at (" + x + ", " + y + ")");
-            // random for the probabity to the robot can turn off the fire
+
             Random random = new Random();
             int probability = random.nextInt(100);
             if (probability < 90) {
@@ -42,12 +46,8 @@ public class Robot {
                 System.out.println("Robot " + id + " failed to turn off fire at (" + x + ", " + y + ")");
             }
         }
-        if (currentCell.hasSurvivor()) {
+        if (grid.getCell(x, y).hasSurvivor()) {
             System.out.println("Robot " + id + " found survivor at (" + x + ", " + y + ")");
         }
     }
 }
-
-
-// vision du robot? contraintes de terrain (cases d'eau, murs, etc.)?
-// limitation de communication entre les robots? soit par un nombre de cases et limite par distance

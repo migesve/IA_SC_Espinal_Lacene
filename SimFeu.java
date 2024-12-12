@@ -14,11 +14,13 @@ public class SimFeu {
         // Initialize the grid and headquarters
         Grid grid = new Grid(gridSize);
         grid.initializeFires(initialFires);
+        grid.setHeadquarters(0, 0);
 
         // Initialize robots
         Robot[] robots = new Robot[numberOfRobots];
         for (int i = 0; i < numberOfRobots; i++) {
             robots[i] = new Robot(i, 0, 0); // Robots start at headquarters (0,0)
+            grid.addRobot(robots[i]);
         }
 
         // Start the simulation interactively
