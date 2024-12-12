@@ -1,9 +1,5 @@
 import java.util.Random;
 
-// vision du robot? contraintes de terrain (cases d'eau, murs, etc.)?
-// limitation de communication entre les robots? soit par un nombre de cases et limite par distance
-
-
 public class Robot {
     private int id;
     private int x;
