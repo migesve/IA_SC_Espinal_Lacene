@@ -6,14 +6,16 @@ public class SimFeu {
 
     public static void main(String[] args) throws IOException {
         // Simulation parameters
-        int gridSize = 10; // Size of the grid (NxN)
+        int gridSize = 50; // Size of the grid (NxN)
         int initialFires = 5; // Number of initial fires
         int propagationRate = 20; // Fire propagation rate (percentage chance)
         int numberOfRobots = 3; // Number of robots
+        int initialSurvivors = 5; // Number of initial survivors
 
         // Initialize the grid and headquarters
         Grid grid = new Grid(gridSize);
         grid.initializeFires(initialFires);
+        grid.initializeSurvivors(initialSurvivors);
         grid.setHeadquarters(0, 0);
 
         // Initialize robots

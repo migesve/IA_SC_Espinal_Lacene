@@ -9,6 +9,7 @@ public class Grid {
     private int headquartersY = 0;
     private List<Robot> robots = new ArrayList<>();
 
+
     public Grid(int size) {
         this.size = size;
         this.grid = new Cell[size][size];
@@ -29,6 +30,16 @@ public class Grid {
             int x = random.nextInt(size);
             int y = random.nextInt(size);
             grid[x][y].setOnFire(true);
+        }
+    }
+
+    
+    public void initializeSurvivors(int initialSurvivors) {
+        Random random = new Random();
+        for (int i = 0; i < initialSurvivors; i++) {
+            int x = random.nextInt(size);
+            int y = random.nextInt(size);
+            grid[x][y].setHasSurvivor(true);
         }
     }
 
@@ -87,6 +98,8 @@ public class Grid {
                     System.out.print("R ");
                 } else if (grid[i][j].isOnFire()) {
                     System.out.print("F ");
+                } else if (grid[i][j].hasSurvivor()) {
+                    System.out.print("S ");
                 } else {
                     System.out.print(". ");
                 }
