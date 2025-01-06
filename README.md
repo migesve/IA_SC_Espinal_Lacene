@@ -6,7 +6,6 @@
 - [ ] limitation de communication entre les robots? soit par un nombre de cases et limite par distance
 - [ ] avancement du robot: verifier les cellules voisins, observer les cellues voisins+, tenir en compte les informations des autres robots.
 - [ ] comportement du robot lors de trouver un survivor
-
 - [ ] contraintes de terrain (cases d'eau, murs, etc.)?
 
 - On va definir une grille lettres pour les colonnes et numeros pour les lignes
@@ -18,3 +17,6 @@
   ... et ainsi de suite
 
 - Les robots communiquent ce qu'ils sont en train de regarder
+
+- si le F atteint un S, il peut pas passer sur la S sauf si le F l'entour completement
+  - tout F s'etaint si es à cote du R
