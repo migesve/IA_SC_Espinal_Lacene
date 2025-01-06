@@ -8,3 +8,13 @@
 - [ ] comportement du robot lors de trouver un survivor
 
 - [ ] contraintes de terrain (cases d'eau, murs, etc.)?
+
+- On va definir une grille lettres pour les colonnes et numeros pour les lignes
+
+- Visio c'est:
+  0 = 1 caisse nord, sud, est et ouest
+  1 = 0 + diagonales (8 caisses autour)
+  2 = 1 + une couche autour
+  ... et ainsi de suite
+
+- Les robots communiquent ce qu'ils sont en train de regarder
