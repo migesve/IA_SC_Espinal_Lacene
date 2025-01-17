@@ -1,6 +1,5 @@
-import java.util.Random;
-
 import java.io.IOException;
+import java.util.Random;
 
 public class SimFeu {
 
@@ -18,12 +17,28 @@ public class SimFeu {
         grid.initializeSurvivors(initialSurvivors);
         grid.setHeadquarters(0, 0);
 
-        // Initialize robots
+        // Initialize the communication network
+        RobotNetwork network = new RobotNetwork();
+
+        // Initialize robots and link them to the network
         Robot[] robots = new Robot[numberOfRobots];
+        Random random = new Random();
+
         for (int i = 0; i < numberOfRobots; i++) {
-            robots[i] = new Robot(i, 0, 0); // Robots start at headquarters (0,0)
+            int x, y;
+            // Assure que les robots sont placés sur des cases distinctes
+            do {
+                x = random.nextInt(gridSize);
+                y = random.nextInt(gridSize);
+            } while (grid.isRobotHere(x, y)); // Rechercher une cellule libre
+
+            robots[i] = new Robot(i, x, y, network); // Place le robot sur une position unique
             grid.addRobot(robots[i]);
         }
+
+        // Afficher le nombre de robots sur la grille
+        System.out.println("Number of robots on the grid: " + grid.getRobotCount());
+        grid.printRobotInfo(); // Affiche les informations des robots (id, position)
 
         // Start the simulation interactively
         Simulation simulation = new Simulation(grid, robots, propagationRate);

@@ -16,18 +16,28 @@ public class Simulation {
 
         while (true) {
             System.out.println("Step " + (++step));
+
+            // Propagation des incendies
             grid.propagateFires(propagationRate);
-            grid.printGrid();
 
+            // Les robots agissent et se déplacent simultanément
             for (Robot robot : robots) {
-                robot.scan(grid);
+                // Scanner l'environnement et agir (éteindre feu, sauver survivants)
+                robot.scanAreaAndAct(grid, 3); // Niveau de visibilité 3
 
-                // Example robot movement: move randomly
+                // Traiter les messages échangés via le réseau
+                robot.processMessages();
+
+                // Déplacement du robot (logique simple, peut être améliorée)
                 int newX = (robot.getX() + 1) % grid.getSize();
                 int newY = (robot.getY() + 1) % grid.getSize();
                 robot.move(newX, newY);
             }
 
+            // Afficher la grille mise à jour
+            grid.printGrid();
+
+            // Demander à l'utilisateur d'avancer ou de quitter
             System.out.println("Press SPACE and ENTER to continue or Q and ENTER to quit...");
             char input = (char) System.in.read();
 
@@ -36,9 +46,9 @@ public class Simulation {
                 break;
             }
 
-            // Clear remaining input buffer
+            // Consommer les caractères restants dans le buffer
             while (System.in.read() != '\n') {
-                // Consume remaining characters
+                // Clear buffer
             }
         }
     }
