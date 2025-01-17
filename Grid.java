@@ -85,7 +85,7 @@ public class Grid {
         }
     }
 
-    private boolean isValidCell(int x, int y) {
+    public boolean isValidCell(int x, int y) {
         return x >= 0 && x < size && y >= 0 && y < size;
     }
 
