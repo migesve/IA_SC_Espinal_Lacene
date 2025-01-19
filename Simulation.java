@@ -40,11 +40,16 @@ public class Simulation {
                     continue;
                 }
 
+                // Prioritize rescuing survivors
+                if (robot.rescueSurvivor(grid)) {
+                    continue; // If the robot rescues a survivor, skip other actions this turn
+                }
+
                 if (robot.isExtinguishing()) {
                     // Robot continues extinguishing fires
                     robot.extinguishFires(grid);
                 } else {
-                    // Move the robot and scan the grid for fires
+                    // Move the robot and scan the grid for fires or survivors
                     robot.move(grid); // Utilise la logique de priorisation pour se déplacer
                     robot.scan(grid);
 
@@ -54,7 +59,7 @@ public class Simulation {
                     }
                 }
 
-                // Communicate fire locations with other robots
+                // Communicate fire and survivor locations with other robots
                 robot.communicate(robots);
             }
 
@@ -71,6 +76,11 @@ public class Simulation {
                 // Consume remaining characters
             }
         }
+
+        // Final report
+        System.out.println("=== Rapport final de simulation ===");
+        System.out.println("Survivants sauvés : " + grid.getSurvivorsRescued());
+        System.out.println("Feux restants : " + countRemainingFires(grid));
     }
 
     private void moveRobotToHeadquarters(Robot robot) {
@@ -103,5 +113,17 @@ public class Simulation {
         }
 
         return true;
+    }
+
+    private int countRemainingFires(Grid grid) {
+        int remainingFires = 0;
+        for (int x = 0; x < grid.getSize(); x++) {
+            for (int y = 0; y < grid.getSize(); y++) {
+                if (grid.getCell(x, y).isOnFire()) {
+                    remainingFires++;
+                }
+            }
+        }
+        return remainingFires;
     }
 }

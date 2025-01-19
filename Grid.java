@@ -9,6 +9,7 @@ public class Grid {
     private int headquartersX = 0;
     private int headquartersY = 0;
     private List<Robot> robots = new ArrayList<>();
+    private int survivorsRescued = 0; // Compteur des survivants sauvés
 
     public Grid(int size) {
         this.size = size;
@@ -158,7 +159,7 @@ public class Grid {
         }
 
         if (cell.hasSurvivor()) {
-            priority += 5; // Les survivants ont une priorité secondaire
+            priority += 20; // Les survivants sont hautement prioritaires
         }
 
         if (isVisited(x, y)) {
@@ -166,5 +167,14 @@ public class Grid {
         }
 
         return priority;
+    }
+
+    // Gestion des survivants sauvés
+    public int getSurvivorsRescued() {
+        return survivorsRescued;
+    }
+
+    public void incrementSurvivorsRescued() {
+        survivorsRescued++;
     }
 }

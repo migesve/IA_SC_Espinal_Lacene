@@ -63,28 +63,28 @@ public class Robot {
     }
 
     public void move(Grid grid) {
-        // Trouver la cellule prioritaire
+        // Find the priority cell (fires and survivors are considered)
         int[] priorityCell = findPriorityCell(grid);
         if (priorityCell != null) {
             int newX = priorityCell[0];
             int newY = priorityCell[1];
-            grid.markAsVisited(newX, newY); // Marquer la cellule comme visitée
+            grid.markAsVisited(newX, newY); // Mark the cell as visited
             this.x = newX;
             this.y = newY;
-            System.out.println("Robot " + id + " se déplace vers la cellule prioritaire (" + newX + ", " + newY + ")");
+            System.out.println("Robot " + id + " moved to the priority cell (" + newX + ", " + newY + ")");
         } else {
-            System.out.println("Robot " + id + " n'a trouvé aucune cellule prioritaire.");
+            System.out.println("Robot " + id + " found no priority cell to move.");
         }
         decreaseEnergy(1); // Moving consumes negligible energy
     }
 
     /**
-     * Méthode pour déplacer manuellement le robot vers des coordonnées spécifiques.
+     * Manually move the robot to specific coordinates.
      */
     public void moveManually(int newX, int newY) {
         this.x = newX;
         this.y = newY;
-        System.out.println("Robot " + id + " s'est déplacé manuellement à (" + newX + ", " + newY + ").");
+        System.out.println("Robot " + id + " manually moved to (" + newX + ", " + newY + ").");
     }
 
     private void addVisitedCell(int x, int y) {
@@ -108,7 +108,7 @@ public class Robot {
                     Cell cell = grid.getCell(nx, ny);
                     if (cell.isOnFire()) {
                         fireLocations.add(new int[]{nx, ny});
-                        System.out.println("Robot " + id + " a détecté un feu à (" + nx + ", " + ny + ")");
+                        System.out.println("Robot " + id + " detected a fire at (" + nx + ", " + ny + ")");
                     }
                 }
             }
@@ -131,7 +131,7 @@ public class Robot {
                         if (random.nextInt(100) < 90) {
                             cell.turnOffFire();
                             decreaseEnergy(10); // Extinguishing consumes energy
-                            System.out.println("Robot " + id + " a éteint un feu à (" + nx + ", " + ny + ")");
+                            System.out.println("Robot " + id + " extinguished a fire at (" + nx + ", " + ny + ")");
                         }
                     }
                 }
@@ -141,6 +141,19 @@ public class Robot {
         if (!fireInExtinguishRange(grid)) {
             isExtinguishing = false;
         }
+    }
+
+    public boolean rescueSurvivor(Grid grid) {
+        // Check if the robot is on a cell with a survivor
+        Cell cell = grid.getCell(x, y);
+        if (cell.hasSurvivor()) {
+            cell.setHasSurvivor(false); // Save the survivor
+            grid.incrementSurvivorsRescued(); // Update the global counter
+            System.out.println("Robot " + id + " rescued a survivor at (" + x + ", " + y + ")");
+            decreaseEnergy(5); // Saving a survivor consumes energy
+            return true;
+        }
+        return false; // No survivor to rescue
     }
 
     public boolean fireInExtinguishRange(Grid grid) {
@@ -174,7 +187,7 @@ public class Robot {
                 }
             }
         }
-        return priorityCell; // Retourne la cellule la plus prioritaire
+        return priorityCell; // Return the most prioritized cell
     }
 
     public void communicate(List<Robot> robots) {
@@ -182,21 +195,21 @@ public class Robot {
             if (this.id != other.getId() && inCommunicationRange(other)) {
                 other.receiveVisitedCells(this.visitedCells);
                 other.receiveFireLocations(this.fireLocations);
-                System.out.println("Robot " + id + " a communiqué avec le robot " + other.getId());
+                System.out.println("Robot " + id + " communicated with Robot " + other.getId());
             }
         }
     }
 
     public void receiveVisitedCells(Set<String> otherVisitedCells) {
         visitedCells.addAll(otherVisitedCells);
-        System.out.println("Robot " + id + " a reçu des informations sur les cellules visitées.");
+        System.out.println("Robot " + id + " received visited cell information.");
     }
 
     public void receiveFireLocations(List<int[]> newFireLocations) {
         for (int[] fire : newFireLocations) {
             if (!fireLocations.contains(fire)) {
                 fireLocations.add(fire);
-                System.out.println("Robot " + id + " a reçu des informations sur un feu à (" + fire[0] + ", " + fire[1] + ")");
+                System.out.println("Robot " + id + " received information about a fire at (" + fire[0] + ", " + fire[1] + ")");
             }
         }
     }
@@ -224,7 +237,7 @@ public class Robot {
             if (energyLevel >= maxEnergy) {
                 energyLevel = maxEnergy;
                 isCharging = false; // Fully charged
-                System.out.println("Robot " + id + " est complètement rechargé.");
+                System.out.println("Robot " + id + " is fully charged.");
             }
         }
     }
