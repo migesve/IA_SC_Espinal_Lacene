@@ -1,83 +1,90 @@
 import java.io.IOException;
+import java.util.Scanner;
 
 public class SimFeu {
 
     public static void main(String[] args) throws IOException {
-        // Simulation parameters
-        int gridSize = 20; // Size of the grid (NxN)
-        int initialFires = 5; // Number of initial fires
-        int propagationRate = 5; // Fire propagation rate (percentage chance)
-        int numberOfRobots = 3; // Number of robots
-        int initialSurvivors = 5; // Number of initial survivors
+        Scanner scanner = new Scanner(System.in);
 
-        // Initialize the grid and headquarters
+        // Demander les paramètres à l'utilisateur ou utiliser des valeurs par défaut
+        System.out.println("Bienvenue dans la simulation d'intervention des robots !");
+        System.out.println("Appuyez sur Entrée pour utiliser les valeurs par défaut ou saisissez vos propres paramètres.");
+        
+        System.out.print("Taille de la grille (par défaut : 40) : ");
+        String gridSizeInput = scanner.nextLine();
+        int gridSize = gridSizeInput.isEmpty() ? 40 : Integer.parseInt(gridSizeInput);
+
+        System.out.print("Nombre d'incendies initiaux (par défaut : 5) : ");
+        String initialFiresInput = scanner.nextLine();
+        int initialFires = initialFiresInput.isEmpty() ? 5 : Integer.parseInt(initialFiresInput);
+
+        System.out.print("Taux de propagation des incendies (par défaut : 10) : ");
+        String propagationRateInput = scanner.nextLine();
+        int propagationRate = propagationRateInput.isEmpty() ? 10 : Integer.parseInt(propagationRateInput);
+
+        System.out.print("Nombre de robots (par défaut : 7) : ");
+        String numberOfRobotsInput = scanner.nextLine();
+        int numberOfRobots = numberOfRobotsInput.isEmpty() ? 7 : Integer.parseInt(numberOfRobotsInput);
+
+        System.out.print("Nombre de survivants initiaux (par défaut : 5) : ");
+        String initialSurvivorsInput = scanner.nextLine();
+        int initialSurvivors = initialSurvivorsInput.isEmpty() ? 5 : Integer.parseInt(initialSurvivorsInput);
+
+        // Initialiser la grille et les robots
         Grid grid = new Grid(gridSize);
         grid.initializeFires(initialFires);
         grid.initializeSurvivors(initialSurvivors);
         grid.setHeadquarters(0, gridSize / 2);
-
-        // Mark the headquarters cell explicitly
         grid.getCell(0, gridSize / 2).setHeadquarters(true);
 
-        // Initialize robots
         Robot[] robots = new Robot[numberOfRobots];
         for (int i = 0; i < numberOfRobots; i++) {
-            robots[i] = new Robot(i, 0, gridSize / 2, 2, 5, 10); // Robots start at the headquarters
+            robots[i] = new Robot(i, 0, gridSize / 2, 2, 5, 10); // Robots démarrent au QG
             grid.addRobot(robots[i]);
         }
 
-        // Display initial configuration
-        System.out.println("=== État initial de la simulation ===");
+        // Afficher la configuration initiale
+        System.out.println("\n=== Configuration initiale ===");
         System.out.println("Taille de la grille : " + gridSize + "x" + gridSize);
         System.out.println("Nombre de robots : " + numberOfRobots);
         System.out.println("Incendies initiaux : " + initialFires);
         System.out.println("Survivants initiaux : " + initialSurvivors);
-        System.out.println("=== Grille initiale ===");
         grid.printGrid();
 
-        // Start the simulation interactively
+        // Demander le mode d'exécution
+        System.out.println("\nChoisissez le mode d'exécution :");
+        System.out.println("1 - Étape par étape (manuellement avec Entrée)");
+        System.out.println("2 - Automatique (jusqu'à ce qu'il n'y ait plus d'incendies ou de survivants)");
+        System.out.print("Votre choix : ");
+        int mode = scanner.nextInt();
+
         Simulation simulation = new Simulation(grid, robots, propagationRate);
-        simulation.runInteractive();
 
-        // Final report after simulation
+        if (mode == 1) {
+            // Mode interactif étape par étape
+            simulation.runInteractive();
+        } else if (mode == 2) {
+            // Mode automatique
+            simulation.runUntilFinalState();
+        } else {
+            System.out.println("Choix invalide. Fin du programme.");
+        }
+
+        // Afficher le rapport final
         System.out.println("\n=== Rapport final de simulation ===");
-        System.out.println("Nombre de feux restants : " + countRemainingFires(grid));
-        System.out.println("Survivants restants : " + countRemainingSurvivors(grid));
+        System.out.println("Nombre de feux restants : " + simulation.countRemainingFires(grid));
+        System.out.println("Nombre de survivants restants : " + simulation.countRemainingSurvivors(grid));
+        System.out.println("Toutes les cellules visitées : " + allCellsVisited(grid));
     }
 
-    /**
-     * Compte le nombre de cellules en feu restantes dans la grille.
-     *
-     * @param grid La grille de simulation.
-     * @return Le nombre total de feux restants.
-     */
-    private static int countRemainingFires(Grid grid) {
-        int remainingFires = 0;
+    private static boolean allCellsVisited(Grid grid) {
         for (int x = 0; x < grid.getSize(); x++) {
             for (int y = 0; y < grid.getSize(); y++) {
-                if (grid.getCell(x, y).isOnFire()) {
-                    remainingFires++;
+                if (!grid.isVisited(x, y)) {
+                    return false;
                 }
             }
         }
-        return remainingFires;
-    }
-
-    /**
-     * Compte le nombre de survivants restants dans la grille.
-     *
-     * @param grid La grille de simulation.
-     * @return Le nombre total de survivants restants.
-     */
-    private static int countRemainingSurvivors(Grid grid) {
-        int remainingSurvivors = 0;
-        for (int x = 0; x < grid.getSize(); x++) {
-            for (int y = 0; y < grid.getSize(); y++) {
-                if (grid.getCell(x, y).hasSurvivor()) {
-                    remainingSurvivors++;
-                }
-            }
-        }
-        return remainingSurvivors;
+        return true;
     }
 }

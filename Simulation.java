@@ -115,7 +115,67 @@ public class Simulation {
         return true;
     }
 
-    private int countRemainingFires(Grid grid) {
+    public void runUntilFinalState() {
+        int step = 0;
+
+        while (countRemainingFires(grid) > 0 || countRemainingSurvivors(grid) > 0) {
+            System.out.println("=== Étape " + (++step) + " ===");
+
+            // Propagate fires
+            grid.propagateFires(propagationRate);
+
+            // Handle each robot's actions
+            for (Robot robot : robots) {
+                if (robot.isCharging()) {
+                    robot.rechargeEnergy();
+                    continue;
+                }
+
+                if (robot.needsRecharge()) {
+                    moveRobotToHeadquarters(robot);
+                    robot.startCharging();
+                    continue;
+                }
+
+                if (robot.rescueSurvivor(grid)) {
+                    continue;
+                }
+
+                if (robot.isExtinguishing()) {
+                    robot.extinguishFires(grid);
+                } else {
+                    robot.move(grid);
+                    robot.scan(grid);
+
+                    if (robot.fireInExtinguishRange(grid)) {
+                        robot.extinguishFires(grid);
+                    }
+                }
+
+                robot.communicate(robots);
+            }
+
+            grid.printGrid();
+        }
+
+        System.out.println("\nSimulation terminée : tous les incendies sont éteints et tous les survivants ont été sauvés.");
+    }
+
+
+    public static int countRemainingSurvivors(Grid grid) {
+        int remainingSurvivors = 0;
+        for (int x = 0; x < grid.getSize(); x++) {
+            for (int y = 0; y < grid.getSize(); y++) {
+                if (grid.getCell(x, y).hasSurvivor()) {
+                    remainingSurvivors++;
+                }
+            }
+        }
+        return remainingSurvivors;
+    }
+
+
+    public int countRemainingFires(Grid grid) {
         int remainingFires = 0;
         for (int x = 0; x < grid.getSize(); x++) {
             for (int y = 0; y < grid.getSize(); y++) {
