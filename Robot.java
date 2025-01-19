@@ -3,6 +3,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.Collections;
+
 
 public class Robot {
     private int id;
@@ -63,20 +65,35 @@ public class Robot {
     }
 
     public void move(Grid grid) {
-        // Find the priority cell (fires and survivors are considered)
         int[] priorityCell = findPriorityCell(grid);
+
         if (priorityCell != null) {
             int newX = priorityCell[0];
             int newY = priorityCell[1];
-            grid.markAsVisited(newX, newY); // Mark the cell as visited
+            grid.markAsVisited(newX, newY);
             this.x = newX;
             this.y = newY;
-            System.out.println("Robot " + id + " moved to the priority cell (" + newX + ", " + newY + ")");
+            decreaseEnergy(1); // Moving consumes energy
+            System.out.println("Robot " + id + " moved to priority cell (" + newX + ", " + newY + ")");
         } else {
-            System.out.println("Robot " + id + " found no priority cell to move.");
+            // Random fallback movement if no priority cell is found
+            int[] directions = {-1, 0, 1};
+            int newX, newY;
+
+            do {
+                int dx = directions[new Random().nextInt(directions.length)];
+                int dy = directions[new Random().nextInt(directions.length)];
+                newX = x + dx;
+                newY = y + dy;
+            } while (!grid.isValidCell(newX, newY) || grid.isVisited(newX, newY));
+
+            this.x = newX;
+            this.y = newY;
+            decreaseEnergy(1); // Moving consumes energy
+            System.out.println("Robot " + id + " moved randomly to (" + newX + ", " + newY + ")");
         }
-        decreaseEnergy(1); // Moving consumes negligible energy
     }
+
 
     /**
      * Manually move the robot to specific coordinates.
@@ -84,7 +101,7 @@ public class Robot {
     public void moveManually(int newX, int newY) {
         this.x = newX;
         this.y = newY;
-        System.out.println("Robot " + id + " manually moved to (" + newX + ", " + newY + ").");
+        //System.out.println("Robot " + id + " manually moved to (" + newX + ", " + newY + ").");
     }
 
     private void addVisitedCell(int x, int y) {
@@ -108,7 +125,7 @@ public class Robot {
                     Cell cell = grid.getCell(nx, ny);
                     if (cell.isOnFire()) {
                         fireLocations.add(new int[]{nx, ny});
-                        System.out.println("Robot " + id + " detected a fire at (" + nx + ", " + ny + ")");
+                        //System.out.println("Robot " + id + " detected a fire at (" + nx + ", " + ny + ")");
                     }
                 }
             }
@@ -131,7 +148,7 @@ public class Robot {
                         if (random.nextInt(100) < 90) {
                             cell.turnOffFire();
                             decreaseEnergy(10); // Extinguishing consumes energy
-                            System.out.println("Robot " + id + " extinguished a fire at (" + nx + ", " + ny + ")");
+                            //System.out.println("Robot " + id + " extinguished a fire at (" + nx + ", " + ny + ")");
                         }
                     }
                 }
@@ -149,7 +166,7 @@ public class Robot {
         if (cell.hasSurvivor()) {
             cell.setHasSurvivor(false); // Save the survivor
             grid.incrementSurvivorsRescued(); // Update the global counter
-            System.out.println("Robot " + id + " rescued a survivor at (" + x + ", " + y + ")");
+            //System.out.println("Robot " + id + " rescued a survivor at (" + x + ", " + y + ")");
             decreaseEnergy(5); // Saving a survivor consumes energy
             return true;
         }
@@ -173,21 +190,30 @@ public class Robot {
         int[] priorityCell = null;
         int maxPriority = Integer.MIN_VALUE;
 
+        List<int[]> candidates = new ArrayList<>();
         for (int dx = -visionRange; dx <= visionRange; dx++) {
             for (int dy = -visionRange; dy <= visionRange; dy++) {
                 int nx = x + dx;
                 int ny = y + dy;
-
                 if (grid.isValidCell(nx, ny) && !grid.isVisited(nx, ny)) {
-                    int priority = grid.calculateCellPriority(nx, ny);
-                    if (priority > maxPriority) {
-                        maxPriority = priority;
-                        priorityCell = new int[]{nx, ny};
-                    }
+                    candidates.add(new int[]{nx, ny});
                 }
             }
         }
-        return priorityCell; // Return the most prioritized cell
+
+        Collections.shuffle(candidates);
+
+        for (int[] cell : candidates) {
+            int nx = cell[0];
+            int ny = cell[1];
+            int priority = grid.calculateCellPriority(nx, ny);
+            if (priority > maxPriority) {
+                maxPriority = priority;
+                priorityCell = cell;
+            }
+        }
+
+        return priorityCell;
     }
 
     public void communicate(List<Robot> robots) {
@@ -195,21 +221,21 @@ public class Robot {
             if (this.id != other.getId() && inCommunicationRange(other)) {
                 other.receiveVisitedCells(this.visitedCells);
                 other.receiveFireLocations(this.fireLocations);
-                System.out.println("Robot " + id + " communicated with Robot " + other.getId());
+                //System.out.println("Robot " + id + " communicated with Robot " + other.getId());
             }
         }
     }
 
     public void receiveVisitedCells(Set<String> otherVisitedCells) {
         visitedCells.addAll(otherVisitedCells);
-        System.out.println("Robot " + id + " received visited cell information.");
+        //System.out.println("Robot " + id + " received visited cell information.");
     }
 
     public void receiveFireLocations(List<int[]> newFireLocations) {
         for (int[] fire : newFireLocations) {
             if (!fireLocations.contains(fire)) {
                 fireLocations.add(fire);
-                System.out.println("Robot " + id + " received information about a fire at (" + fire[0] + ", " + fire[1] + ")");
+                //System.out.println("Robot " + id + " received information about a fire at (" + fire[0] + ", " + fire[1] + ")");
             }
         }
     }
@@ -237,7 +263,7 @@ public class Robot {
             if (energyLevel >= maxEnergy) {
                 energyLevel = maxEnergy;
                 isCharging = false; // Fully charged
-                System.out.println("Robot " + id + " is fully charged.");
+                //System.out.println("Robot " + id + " is fully charged.");
             }
         }
     }

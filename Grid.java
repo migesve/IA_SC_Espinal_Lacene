@@ -5,11 +5,11 @@ import java.util.List;
 public class Grid {
     private int size;
     private Cell[][] grid;
-    private boolean[][] visitedCells; // Carte des cellules visitées
+    private boolean[][] visitedCells; // Map of visited cells
     private int headquartersX = 0;
     private int headquartersY = 0;
     private List<Robot> robots = new ArrayList<>();
-    private int survivorsRescued = 0; // Compteur des survivants sauvés
+    private int survivorsRescued = 0; // Counter for rescued survivors
 
     public Grid(int size) {
         this.size = size;
@@ -21,8 +21,8 @@ public class Grid {
     private void initializeGrid() {
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                grid[i][j] = new Cell(false, false); // Par défaut, pas de feu ni de survivant
-                visitedCells[i][j] = false; // Cellules marquées comme non visitées au départ
+                grid[i][j] = new Cell(false, false); // Default: no fire, no survivor
+                visitedCells[i][j] = false; // Initially, all cells are unvisited
             }
         }
     }
@@ -48,7 +48,7 @@ public class Grid {
     public void setHeadquarters(int x, int y) {
         this.headquartersX = x;
         this.headquartersY = y;
-        grid[x][y].setHasSurvivor(false); // S'assure qu'il n'y a pas de survivant au QG
+        grid[x][y].setHasSurvivor(false); // Ensure no survivor is at HQ
     }
 
     public int getHeadquartersX() {
@@ -101,24 +101,36 @@ public class Grid {
     }
 
     public void printGrid() {
+        System.out.println("Legend: H = Headquarters, R = Robot, F = Fire, S = Survivor, V = Visited, . = Empty");
+        System.out.println();
+
+        // Print column headers
+        System.out.print("   ");
+        for (int col = 0; col < size; col++) {
+            System.out.printf("%2d ", col);
+        }
+        System.out.println();
+
         for (int i = 0; i < size; i++) {
+            System.out.printf("%2d ", i); // Row number
             for (int j = 0; j < size; j++) {
                 if (i == headquartersX && j == headquartersY) {
-                    System.out.print("H ");
+                    System.out.print(" H ");
                 } else if (isRobotHere(i, j)) {
-                    System.out.print("R ");
+                    System.out.print(" R ");
                 } else if (grid[i][j].isOnFire()) {
-                    System.out.print("F ");
+                    System.out.print(" F ");
                 } else if (grid[i][j].hasSurvivor()) {
-                    System.out.print("S ");
+                    System.out.print(" S ");
                 } else if (isVisited(i, j)) {
-                    System.out.print("V "); // Cellule visitée
+                    System.out.print(" V ");
                 } else {
-                    System.out.print(". ");
+                    System.out.print(" . ");
                 }
             }
             System.out.println();
         }
+        System.out.println();
     }
 
     private boolean isRobotHere(int x, int y) {
@@ -134,7 +146,7 @@ public class Grid {
         return x == headquartersX && y == headquartersY;
     }
 
-    // Gestion des cellules visitées
+    // Handle visited cells
     public boolean isVisited(int x, int y) {
         return visitedCells[x][y];
     }
@@ -145,31 +157,31 @@ public class Grid {
         }
     }
 
-    // Calcul de la priorité d'une cellule (incendie, survivants, etc.)
+    // Calculate cell priority based on fire, survivors, and visited status
     public int calculateCellPriority(int x, int y) {
         if (!isValidCell(x, y)) {
-            return Integer.MIN_VALUE; // Priorité minimale pour une cellule invalide
+            return Integer.MIN_VALUE; // Minimum priority for invalid cells
         }
 
         Cell cell = grid[x][y];
         int priority = 0;
 
         if (cell.isOnFire()) {
-            priority += 10; // Les incendies sont très prioritaires
+            priority += 50; // Fires have high priority
         }
 
         if (cell.hasSurvivor()) {
-            priority += 20; // Les survivants sont hautement prioritaires
+            priority += 100; // Survivors have the highest priority
         }
 
         if (isVisited(x, y)) {
-            priority -= 2; // Réduction de priorité pour éviter les doublons
+            priority -= 10; // Reduce priority for visited cells
         }
 
         return priority;
     }
 
-    // Gestion des survivants sauvés
+    // Survivor management
     public int getSurvivorsRescued() {
         return survivorsRescued;
     }

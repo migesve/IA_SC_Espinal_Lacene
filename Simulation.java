@@ -28,13 +28,13 @@ public class Simulation {
                 if (robot.isCharging()) {
                     // If the robot is charging, let it recharge
                     robot.rechargeEnergy();
-                    System.out.println("Robot " + robot.getId() + " est en cours de recharge. Énergie actuelle : " + robot.getEnergyLevel());
+                    //System.out.println("Robot " + robot.getId() + " est en cours de recharge. Énergie actuelle : " + robot.getEnergyLevel());
                     continue;
                 }
 
                 if (robot.needsRecharge()) {
                     // If the robot needs to recharge, move it to the headquarters
-                    System.out.println("Robot " + robot.getId() + " retourne au QG pour se recharger.");
+                    //System.out.println("Robot " + robot.getId() + " retourne au QG pour se recharger.");
                     moveRobotToHeadquarters(robot);
                     robot.startCharging();
                     continue;
