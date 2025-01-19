@@ -45,7 +45,7 @@ public class Simulation {
                     robot.extinguishFires(grid);
                 } else {
                     // Move the robot and scan the grid for fires
-                    moveRobot(robot);
+                    robot.move(grid); // Utilise la logique de priorisation pour se déplacer
                     robot.scan(grid);
 
                     // If a fire is detected within range, start extinguishing
@@ -73,50 +73,32 @@ public class Simulation {
         }
     }
 
-    private void moveRobot(Robot robot) {
-        if (robot.isExtinguishing()) {
-            return; // If extinguishing, don't move
-        }
-
-        int[] directions = {-1, 0, 1};
-        int newX, newY;
-
-        do {
-            int dx = directions[(int) (Math.random() * directions.length)];
-            int dy = directions[(int) (Math.random() * directions.length)];
-            newX = robot.getX() + dx;
-            newY = robot.getY() + dy;
-        } while (!isValidMove(newX, newY, robot));
-
-        robot.move(newX, newY);
-        System.out.println("Robot " + robot.getId() + " moved to (" + newX + ", " + newY + ")");
-    }
-
     private void moveRobotToHeadquarters(Robot robot) {
-        int hqX = grid.getHeadquartersX(); // Assumes a getter for headquarters coordinates
+        int hqX = grid.getHeadquartersX(); // Coordonnées du QG
         int hqY = grid.getHeadquartersY();
 
-        // Move one step closer to the headquarters
-        int dx = Integer.compare(hqX, robot.getX());
-        int dy = Integer.compare(hqY, robot.getY());
+        // Calcul de l'étape pour se rapprocher du QG
+        int dx = Integer.compare(hqX, robot.getX()); // Direction en X
+        int dy = Integer.compare(hqY, robot.getY()); // Direction en Y
 
         int newX = robot.getX() + dx;
         int newY = robot.getY() + dy;
 
         if (isValidMove(newX, newY, robot)) {
-            robot.move(newX, newY);
+            // Déplacement manuel avec une méthode spécifique dans la classe Robot
+            robot.moveManually(newX, newY); // Utilisation de moveManually pour des déplacements directs
             System.out.println("Robot " + robot.getId() + " se déplace vers le QG : (" + newX + ", " + newY + ")");
         }
     }
 
     private boolean isValidMove(int x, int y, Robot movingRobot) {
         if (!grid.isValidCell(x, y)) {
-            return false; // Outside grid boundaries
+            return false; // Hors des limites de la grille
         }
 
         for (Robot other : robots) {
             if (other != movingRobot && other.getX() == x && other.getY() == y) {
-                return false; // Cell is occupied by another robot
+                return false; // La cellule est déjà occupée par un autre robot
             }
         }
 

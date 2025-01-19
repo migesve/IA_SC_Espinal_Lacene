@@ -5,6 +5,7 @@ import java.util.List;
 public class Grid {
     private int size;
     private Cell[][] grid;
+    private boolean[][] visitedCells; // Carte des cellules visitées
     private int headquartersX = 0;
     private int headquartersY = 0;
     private List<Robot> robots = new ArrayList<>();
@@ -12,13 +13,15 @@ public class Grid {
     public Grid(int size) {
         this.size = size;
         this.grid = new Cell[size][size];
+        this.visitedCells = new boolean[size][size];
         initializeGrid();
     }
 
     private void initializeGrid() {
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                grid[i][j] = new Cell(false, false); // No fire, no survivor by default
+                grid[i][j] = new Cell(false, false); // Par défaut, pas de feu ni de survivant
+                visitedCells[i][j] = false; // Cellules marquées comme non visitées au départ
             }
         }
     }
@@ -44,7 +47,7 @@ public class Grid {
     public void setHeadquarters(int x, int y) {
         this.headquartersX = x;
         this.headquartersY = y;
-        grid[x][y].setHasSurvivor(false); // Clear any survivor at the HQ
+        grid[x][y].setHasSurvivor(false); // S'assure qu'il n'y a pas de survivant au QG
     }
 
     public int getHeadquartersX() {
@@ -107,6 +110,8 @@ public class Grid {
                     System.out.print("F ");
                 } else if (grid[i][j].hasSurvivor()) {
                     System.out.print("S ");
+                } else if (isVisited(i, j)) {
+                    System.out.print("V "); // Cellule visitée
                 } else {
                     System.out.print(". ");
                 }
@@ -126,5 +131,40 @@ public class Grid {
 
     public boolean isAtHeadquarters(int x, int y) {
         return x == headquartersX && y == headquartersY;
+    }
+
+    // Gestion des cellules visitées
+    public boolean isVisited(int x, int y) {
+        return visitedCells[x][y];
+    }
+
+    public void markAsVisited(int x, int y) {
+        if (isValidCell(x, y)) {
+            visitedCells[x][y] = true;
+        }
+    }
+
+    // Calcul de la priorité d'une cellule (incendie, survivants, etc.)
+    public int calculateCellPriority(int x, int y) {
+        if (!isValidCell(x, y)) {
+            return Integer.MIN_VALUE; // Priorité minimale pour une cellule invalide
+        }
+
+        Cell cell = grid[x][y];
+        int priority = 0;
+
+        if (cell.isOnFire()) {
+            priority += 10; // Les incendies sont très prioritaires
+        }
+
+        if (cell.hasSurvivor()) {
+            priority += 5; // Les survivants ont une priorité secondaire
+        }
+
+        if (isVisited(x, y)) {
+            priority -= 2; // Réduction de priorité pour éviter les doublons
+        }
+
+        return priority;
     }
 }

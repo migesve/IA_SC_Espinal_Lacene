@@ -39,4 +39,33 @@ public class Cell {
             this.hasSurvivor = false; // Assurez-vous qu'une cellule QG ne contient pas de survivant
         }
     }
+
+    /**
+     * Calcule la priorité de cette cellule pour les robots.
+     * La priorité est basée sur la présence de feux, de survivants et sur le fait que ce soit ou non un QG.
+     *
+     * @param isVisited indique si la cellule a déjà été visitée
+     * @return une valeur numérique représentant la priorité
+     */
+    public int calculatePriority(boolean isVisited) {
+        int priority = 0;
+
+        if (onFire) {
+            priority += 10; // Les feux sont très prioritaires
+        }
+
+        if (hasSurvivor) {
+            priority += 5; // Les survivants sont également prioritaires
+        }
+
+        if (isHeadquarters) {
+            priority -= 100; // QG non pertinent pour exploration
+        }
+
+        if (isVisited) {
+            priority -= 2; // Réduit légèrement la priorité si déjà visitée
+        }
+
+        return priority;
+    }
 }

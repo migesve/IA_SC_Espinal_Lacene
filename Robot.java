@@ -62,11 +62,29 @@ public class Robot {
         return energyLevel;
     }
 
-    public void move(int newX, int newY) {
+    public void move(Grid grid) {
+        // Trouver la cellule prioritaire
+        int[] priorityCell = findPriorityCell(grid);
+        if (priorityCell != null) {
+            int newX = priorityCell[0];
+            int newY = priorityCell[1];
+            grid.markAsVisited(newX, newY); // Marquer la cellule comme visitée
+            this.x = newX;
+            this.y = newY;
+            System.out.println("Robot " + id + " se déplace vers la cellule prioritaire (" + newX + ", " + newY + ")");
+        } else {
+            System.out.println("Robot " + id + " n'a trouvé aucune cellule prioritaire.");
+        }
+        decreaseEnergy(1); // Moving consumes negligible energy
+    }
+
+    /**
+     * Méthode pour déplacer manuellement le robot vers des coordonnées spécifiques.
+     */
+    public void moveManually(int newX, int newY) {
         this.x = newX;
         this.y = newY;
-        addVisitedCell(newX, newY);
-        decreaseEnergy(1); // Moving consumes negligible energy
+        System.out.println("Robot " + id + " s'est déplacé manuellement à (" + newX + ", " + newY + ").");
     }
 
     private void addVisitedCell(int x, int y) {
@@ -136,6 +154,27 @@ public class Robot {
             }
         }
         return false;
+    }
+
+    public int[] findPriorityCell(Grid grid) {
+        int[] priorityCell = null;
+        int maxPriority = Integer.MIN_VALUE;
+
+        for (int dx = -visionRange; dx <= visionRange; dx++) {
+            for (int dy = -visionRange; dy <= visionRange; dy++) {
+                int nx = x + dx;
+                int ny = y + dy;
+
+                if (grid.isValidCell(nx, ny) && !grid.isVisited(nx, ny)) {
+                    int priority = grid.calculateCellPriority(nx, ny);
+                    if (priority > maxPriority) {
+                        maxPriority = priority;
+                        priorityCell = new int[]{nx, ny};
+                    }
+                }
+            }
+        }
+        return priorityCell; // Retourne la cellule la plus prioritaire
     }
 
     public void communicate(List<Robot> robots) {
