@@ -4,12 +4,12 @@ import java.io.IOException;
 
 public class Simulation {
     private Grid grid;
-    private List<Robot> robots; // Change to List<Robot>
+    private List<Robot> robots;
     private int propagationRate;
 
     public Simulation(Grid grid, Robot[] robots, int propagationRate) {
         this.grid = grid;
-        this.robots = Arrays.asList(robots); // Convert array to list
+        this.robots = Arrays.asList(robots);
         this.propagationRate = propagationRate;
     }
 
@@ -25,6 +25,21 @@ public class Simulation {
 
             // Handle each robot's actions
             for (Robot robot : robots) {
+                if (robot.isCharging()) {
+                    // If the robot is charging, let it recharge
+                    robot.rechargeEnergy();
+                    System.out.println("Robot " + robot.getId() + " est en cours de recharge. Énergie actuelle : " + robot.getEnergyLevel());
+                    continue;
+                }
+
+                if (robot.needsRecharge()) {
+                    // If the robot needs to recharge, move it to the headquarters
+                    System.out.println("Robot " + robot.getId() + " retourne au QG pour se recharger.");
+                    moveRobotToHeadquarters(robot);
+                    robot.startCharging();
+                    continue;
+                }
+
                 if (robot.isExtinguishing()) {
                     // Robot continues extinguishing fires
                     robot.extinguishFires(grid);
@@ -40,7 +55,7 @@ public class Simulation {
                 }
 
                 // Communicate fire locations with other robots
-                robot.communicate(robots); // robots is now a List<Robot>
+                robot.communicate(robots);
             }
 
             System.out.println("Press SPACE and ENTER to continue or Q and ENTER to quit...");
@@ -77,6 +92,23 @@ public class Simulation {
         System.out.println("Robot " + robot.getId() + " moved to (" + newX + ", " + newY + ")");
     }
 
+    private void moveRobotToHeadquarters(Robot robot) {
+        int hqX = grid.getHeadquartersX(); // Assumes a getter for headquarters coordinates
+        int hqY = grid.getHeadquartersY();
+
+        // Move one step closer to the headquarters
+        int dx = Integer.compare(hqX, robot.getX());
+        int dy = Integer.compare(hqY, robot.getY());
+
+        int newX = robot.getX() + dx;
+        int newY = robot.getY() + dy;
+
+        if (isValidMove(newX, newY, robot)) {
+            robot.move(newX, newY);
+            System.out.println("Robot " + robot.getId() + " se déplace vers le QG : (" + newX + ", " + newY + ")");
+        }
+    }
+
     private boolean isValidMove(int x, int y, Robot movingRobot) {
         if (!grid.isValidCell(x, y)) {
             return false; // Outside grid boundaries
@@ -90,5 +122,4 @@ public class Simulation {
 
         return true;
     }
-
 }

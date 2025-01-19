@@ -14,6 +14,9 @@ public class Robot {
     private List<int[]> fireLocations;
     private boolean isExtinguishing;
     private Set<String> visitedCells; // Track visited cells
+    private int energyLevel; // Current energy level
+    private int maxEnergy; // Maximum energy capacity
+    private boolean isCharging; // Charging status
 
     public Robot(int id, int x, int y, int extinguishRange, int visionRange, int communicationRange) {
         this.id = id;
@@ -25,6 +28,9 @@ public class Robot {
         this.fireLocations = new ArrayList<>();
         this.isExtinguishing = false;
         this.visitedCells = new HashSet<>(); // Initialize visited cells
+        this.maxEnergy = 100; // Set maximum energy
+        this.energyLevel = maxEnergy; // Initialize energy to maximum
+        this.isCharging = false; // Initially, not charging
         addVisitedCell(x, y); // Mark starting position as visited
     }
 
@@ -44,18 +50,29 @@ public class Robot {
         return isExtinguishing;
     }
 
+    public boolean needsRecharge() {
+        return energyLevel < 20; // Threshold for recharge
+    }
+
+    public boolean isCharging() {
+        return isCharging;
+    }
+
+    public int getEnergyLevel() {
+        return energyLevel;
+    }
+
     public void move(int newX, int newY) {
         this.x = newX;
         this.y = newY;
         addVisitedCell(newX, newY);
+        decreaseEnergy(1); // Moving consumes negligible energy
     }
 
-    // Add cell to visited cells
     private void addVisitedCell(int x, int y) {
         visitedCells.add(x + "," + y);
     }
 
-    // Check if a cell has been visited
     public boolean hasVisited(int x, int y) {
         return visitedCells.contains(x + "," + y);
     }
@@ -95,6 +112,7 @@ public class Robot {
                         Random random = new Random();
                         if (random.nextInt(100) < 90) {
                             cell.turnOffFire();
+                            decreaseEnergy(10); // Extinguishing consumes energy
                             System.out.println("Robot " + id + " a éteint un feu à (" + nx + ", " + ny + ")");
                         }
                     }
@@ -123,10 +141,7 @@ public class Robot {
     public void communicate(List<Robot> robots) {
         for (Robot other : robots) {
             if (this.id != other.getId() && inCommunicationRange(other)) {
-                // Share visited cells
                 other.receiveVisitedCells(this.visitedCells);
-
-                // Share fire locations
                 other.receiveFireLocations(this.fireLocations);
                 System.out.println("Robot " + id + " a communiqué avec le robot " + other.getId());
             }
@@ -151,5 +166,27 @@ public class Robot {
         int distanceX = Math.abs(this.x - other.getX());
         int distanceY = Math.abs(this.y - other.getY());
         return distanceX <= communicationRange && distanceY <= communicationRange;
+    }
+
+    public void decreaseEnergy(int amount) {
+        energyLevel -= amount;
+        if (energyLevel < 0) {
+            energyLevel = 0; // Prevent negative energy
+        }
+    }
+
+    public void startCharging() {
+        isCharging = true;
+    }
+
+    public void rechargeEnergy() {
+        if (isCharging) {
+            energyLevel += 10; // Recharge increment
+            if (energyLevel >= maxEnergy) {
+                energyLevel = maxEnergy;
+                isCharging = false; // Fully charged
+                System.out.println("Robot " + id + " est complètement rechargé.");
+            }
+        }
     }
 }

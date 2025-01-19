@@ -1,5 +1,4 @@
 import java.util.Random;
-
 import java.io.IOException;
 
 public class SimFeu {
@@ -16,13 +15,21 @@ public class SimFeu {
         Grid grid = new Grid(gridSize);
         grid.initializeFires(initialFires);
         grid.initializeSurvivors(initialSurvivors);
-        grid.setHeadquarters(0, gridSize/2); 
+        grid.setHeadquarters(0, gridSize / 2);
+
+        // Set the cell of the headquarters explicitly
+        grid.getCell(0, gridSize / 2).setHeadquarters(true);
+
         // Initialize robots
         Robot[] robots = new Robot[numberOfRobots];
         for (int i = 0; i < numberOfRobots; i++) {
-            robots[i] = new Robot(i, 0, gridSize/2,2,5,10); // Robot demarre au headquarters
+            robots[i] = new Robot(i, 0, gridSize / 2, 2, 5, 10); // Robots start at the headquarters
             grid.addRobot(robots[i]);
         }
+
+        // Print initial state of the grid
+        System.out.println("État initial de la grille :");
+        grid.printGrid();
 
         // Start the simulation interactively
         Simulation simulation = new Simulation(grid, robots, propagationRate);

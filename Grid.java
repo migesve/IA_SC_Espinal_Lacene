@@ -9,7 +9,6 @@ public class Grid {
     private int headquartersY = 0;
     private List<Robot> robots = new ArrayList<>();
 
-
     public Grid(int size) {
         this.size = size;
         this.grid = new Cell[size][size];
@@ -33,7 +32,6 @@ public class Grid {
         }
     }
 
-    
     public void initializeSurvivors(int initialSurvivors) {
         Random random = new Random();
         for (int i = 0; i < initialSurvivors; i++) {
@@ -46,6 +44,15 @@ public class Grid {
     public void setHeadquarters(int x, int y) {
         this.headquartersX = x;
         this.headquartersY = y;
+        grid[x][y].setHasSurvivor(false); // Clear any survivor at the HQ
+    }
+
+    public int getHeadquartersX() {
+        return headquartersX;
+    }
+
+    public int getHeadquartersY() {
+        return headquartersY;
     }
 
     public void addRobot(Robot robot) {
@@ -115,5 +122,9 @@ public class Grid {
             }
         }
         return false;
+    }
+
+    public boolean isAtHeadquarters(int x, int y) {
+        return x == headquartersX && y == headquartersY;
     }
 }
