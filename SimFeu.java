@@ -14,13 +14,13 @@ public class SimFeu {
         String gridSizeInput = scanner.nextLine();
         int gridSize = gridSizeInput.isEmpty() ? 40 : Integer.parseInt(gridSizeInput);
 
-        System.out.print("Nombre d'incendies initiaux (par défaut : 5) : ");
+        System.out.print("Nombre d'incendies initiaux (par défaut : 2) : ");
         String initialFiresInput = scanner.nextLine();
-        int initialFires = initialFiresInput.isEmpty() ? 5 : Integer.parseInt(initialFiresInput);
+        int initialFires = initialFiresInput.isEmpty() ? 2 : Integer.parseInt(initialFiresInput);
 
-        System.out.print("Taux de propagation des incendies (par défaut : 10) : ");
+        System.out.print("Taux de propagation des incendies (par défaut : 2) : ");
         String propagationRateInput = scanner.nextLine();
-        int propagationRate = propagationRateInput.isEmpty() ? 10 : Integer.parseInt(propagationRateInput);
+        int propagationRate = propagationRateInput.isEmpty() ? 2 : Integer.parseInt(propagationRateInput);
 
         System.out.print("Nombre de robots (par défaut : 7) : ");
         String numberOfRobotsInput = scanner.nextLine();

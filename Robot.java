@@ -106,29 +106,29 @@ public class Robot {
     }
     
     public void move(Grid grid, List<Robot> robots) {
-        // Reassess priority every time the robot moves
+        // verifier les priorités
         int[] priorityCell = findPriorityCell(grid, robots);
 
         if (priorityCell != null) {
-            // Calculate one step toward the priority cell
+            // calcul d'un pas vers la cellule prioritaire
             int dx = Integer.compare(priorityCell[0], x);
             int dy = Integer.compare(priorityCell[1], y);
             int newX = x + dx;
             int newY = y + dy;
 
             if (grid.isValidCell(newX, newY)) {
-                // Move to the next step and mark it as visited
+                // Move to prochaine celulle et marquer comme visitée
                 this.x = newX;
                 this.y = newY;
                 grid.markAsVisited(newX, newY);
-                decreaseEnergy(1); // Moving consumes energy
+                decreaseEnergy(1); // bouger consomme de l'énergie
                 System.out.println("Robot " + id + " moved to (" + newX + ", " + newY + ")");
             } else {
-                // If the cell is invalid, fallback to random movement
+                // si la celulle prioritaire n'est pas valide, bouger aléatoirement
                 fallbackRandomMove(grid, robots);
             }
         } else {
-            // If no priority cell is found, fallback to random movement
+            // si la celulle prioritaire n'est pas trouvée, bouger aléatoirement
             fallbackRandomMove(grid, robots);
         }
     }
@@ -147,7 +147,7 @@ public class Robot {
         this.x = newX;
         this.y = newY;
         grid.markAsVisited(newX, newY);
-        decreaseEnergy(1); // Moving consumes energy
+        decreaseEnergy(1); // Bouger consomme de l'énergie
         System.out.println("Robot " + id + " moved randomly to (" + newX + ", " + newY + ")");
     }
 
@@ -166,7 +166,7 @@ public class Robot {
             }
         }
 
-        Collections.shuffle(candidates); // Randomize to avoid clustering
+        Collections.shuffle(candidates); // aleatoire pour eviter les tourner en rond
 
         for (int[] cell : candidates) {
             int nx = cell[0];
