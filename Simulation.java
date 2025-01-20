@@ -50,7 +50,7 @@ public class Simulation {
                     robot.extinguishFires(grid);
                 } else {
                     // Move the robot and scan the grid for fires or survivors
-                    robot.move(grid); // Utilise la logique de priorisation pour se déplacer
+                    robot.move(grid, robots); // Utilise la logique de priorisation pour se déplacer
                     robot.scan(grid);
 
                     // If a fire is detected within range, start extinguishing
@@ -60,7 +60,7 @@ public class Simulation {
                 }
 
                 // Communicate fire and survivor locations with other robots
-                robot.communicate(robots);
+                robot.communicate(grid, robots);
             }
 
             System.out.println("Press SPACE and ENTER to continue or Q and ENTER to quit...");
@@ -140,7 +140,7 @@ public class Simulation {
                 if (robot.isExtinguishing()) {
                     robot.extinguishFires(grid);
                 } else {
-                    robot.move(grid);
+                    robot.move(grid, robots);
                     robot.scan(grid);
 
                     if (robot.fireInExtinguishRange(grid)) {
@@ -148,7 +148,7 @@ public class Simulation {
                     }
                 }
 
-                robot.communicate(robots);
+                robot.communicate(grid, robots);
             }
 
             grid.printGrid();

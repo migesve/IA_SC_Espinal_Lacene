@@ -64,51 +64,7 @@ public class Robot {
         return energyLevel;
     }
 
-    public void move(Grid grid) {
-        // Reassess priority every time the robot moves
-        int[] priorityCell = findPriorityCell(grid);
 
-        if (priorityCell != null) {
-            // Calculate one step toward the priority cell
-            int dx = Integer.compare(priorityCell[0], x);
-            int dy = Integer.compare(priorityCell[1], y);
-            int newX = x + dx;
-            int newY = y + dy;
-
-            if (grid.isValidCell(newX, newY)) {
-                // Move to the next step and mark it as visited
-                this.x = newX;
-                this.y = newY;
-                grid.markAsVisited(newX, newY);
-                decreaseEnergy(1); // Moving consumes energy
-                System.out.println("Robot " + id + " moved to (" + newX + ", " + newY + ")");
-            } else {
-                // If the cell is invalid, fallback to random movement
-                fallbackRandomMove(grid);
-            }
-        } else {
-            // If no priority cell is found, fallback to random movement
-            fallbackRandomMove(grid);
-        }
-    }
-
-    private void fallbackRandomMove(Grid grid) {
-        int[] directions = {-1, 0, 1};
-        int newX, newY;
-
-        do {
-            int dx = directions[new Random().nextInt(directions.length)];
-            int dy = directions[new Random().nextInt(directions.length)];
-            newX = x + dx;
-            newY = y + dy;
-        } while (!grid.isValidCell(newX, newY) || grid.isVisited(newX, newY));
-
-        this.x = newX;
-        this.y = newY;
-        grid.markAsVisited(newX, newY);
-        decreaseEnergy(1); // Moving consumes energy
-        System.out.println("Robot " + id + " moved randomly to (" + newX + ", " + newY + ")");
-    }
 
 
     public void moveManually(int newX, int newY) {
@@ -148,6 +104,106 @@ public class Robot {
             isExtinguishing = true;
         }
     }
+    
+    public void move(Grid grid, List<Robot> robots) {
+        // Reassess priority every time the robot moves
+        int[] priorityCell = findPriorityCell(grid, robots);
+
+        if (priorityCell != null) {
+            // Calculate one step toward the priority cell
+            int dx = Integer.compare(priorityCell[0], x);
+            int dy = Integer.compare(priorityCell[1], y);
+            int newX = x + dx;
+            int newY = y + dy;
+
+            if (grid.isValidCell(newX, newY)) {
+                // Move to the next step and mark it as visited
+                this.x = newX;
+                this.y = newY;
+                grid.markAsVisited(newX, newY);
+                decreaseEnergy(1); // Moving consumes energy
+                System.out.println("Robot " + id + " moved to (" + newX + ", " + newY + ")");
+            } else {
+                // If the cell is invalid, fallback to random movement
+                fallbackRandomMove(grid, robots);
+            }
+        } else {
+            // If no priority cell is found, fallback to random movement
+            fallbackRandomMove(grid, robots);
+        }
+    }
+
+    private void fallbackRandomMove(Grid grid, List<Robot> robots) {
+        int[] directions = {-1, 0, 1};
+        int newX, newY;
+
+        do {
+            int dx = directions[new Random().nextInt(directions.length)];
+            int dy = directions[new Random().nextInt(directions.length)];
+            newX = x + dx;
+            newY = y + dy;
+        } while (!grid.isValidCell(newX, newY) || grid.isVisited(newX, newY) || isRobotHere(newX, newY, robots));
+
+        this.x = newX;
+        this.y = newY;
+        grid.markAsVisited(newX, newY);
+        decreaseEnergy(1); // Moving consumes energy
+        System.out.println("Robot " + id + " moved randomly to (" + newX + ", " + newY + ")");
+    }
+
+    private int[] findPriorityCell(Grid grid, List<Robot> robots) {
+        int[] priorityCell = null;
+        int maxPriority = Integer.MIN_VALUE;
+
+        List<int[]> candidates = new ArrayList<>();
+        for (int dx = -visionRange; dx <= visionRange; dx++) {
+            for (int dy = -visionRange; dy <= visionRange; dy++) {
+                int nx = x + dx;
+                int ny = y + dy;
+                if (grid.isValidCell(nx, ny) && !isRobotHere(nx, ny, robots)) {
+                    candidates.add(new int[]{nx, ny});
+                }
+            }
+        }
+
+        Collections.shuffle(candidates); // Randomize to avoid clustering
+
+        for (int[] cell : candidates) {
+            int nx = cell[0];
+            int ny = cell[1];
+            int priority = grid.calculateCellPriority(nx, ny);
+            if (priority > maxPriority) {
+                maxPriority = priority;
+                priorityCell = cell;
+            }
+        }
+
+        return priorityCell;
+    }
+
+    private boolean isRobotHere(int x, int y, List<Robot> robots) {
+        for (Robot robot : robots) {
+            if (robot.getX() == x && robot.getY() == y) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void communicate(Grid grid, List<Robot> robots) {
+        for (Robot other : robots) {
+            if (this.id != other.getId() && inCommunicationRange(other)) {
+                other.receiveVisitedCells(this.visitedCells);
+                other.receiveFireLocations(this.fireLocations);
+
+                // Share requests for help
+                if (fireInExtinguishRange(grid)) {
+                    other.fireLocations.addAll(this.fireLocations);
+                }
+            }
+        }
+    }
+
 
     public void extinguishFires(Grid grid) {
         for (int dx = -extinguishRange; dx <= extinguishRange; dx++) {
@@ -197,46 +253,6 @@ public class Robot {
             }
         }
         return false;
-    }
-
-    public int[] findPriorityCell(Grid grid) {
-        int[] priorityCell = null;
-        int maxPriority = Integer.MIN_VALUE;
-
-        List<int[]> candidates = new ArrayList<>();
-        for (int dx = -visionRange; dx <= visionRange; dx++) {
-            for (int dy = -visionRange; dy <= visionRange; dy++) {
-                int nx = x + dx;
-                int ny = y + dy;
-                if (grid.isValidCell(nx, ny)) {
-                    candidates.add(new int[]{nx, ny});
-                }
-            }
-        }
-
-        Collections.shuffle(candidates);
-
-        for (int[] cell : candidates) {
-            int nx = cell[0];
-            int ny = cell[1];
-            int priority = grid.calculateCellPriority(nx, ny);
-            if (priority > maxPriority) {
-                maxPriority = priority;
-                priorityCell = cell;
-            }
-        }
-
-        return priorityCell;
-    }
-
-    public void communicate(List<Robot> robots) {
-        for (Robot other : robots) {
-            if (this.id != other.getId() && inCommunicationRange(other)) {
-                other.receiveVisitedCells(this.visitedCells);
-                other.receiveFireLocations(this.fireLocations);
-                //System.out.println("Robot " + id + " communicated with Robot " + other.getId());
-            }
-        }
     }
 
     public void receiveVisitedCells(Set<String> otherVisitedCells) {
