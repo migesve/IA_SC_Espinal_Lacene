@@ -65,39 +65,52 @@ public class Robot {
     }
 
     public void move(Grid grid) {
+        // Reassess priority every time the robot moves
         int[] priorityCell = findPriorityCell(grid);
 
         if (priorityCell != null) {
-            int newX = priorityCell[0];
-            int newY = priorityCell[1];
-            grid.markAsVisited(newX, newY);
-            this.x = newX;
-            this.y = newY;
-            decreaseEnergy(1); // Moving consumes energy
-            System.out.println("Robot " + id + " moved to priority cell (" + newX + ", " + newY + ")");
+            // Calculate one step toward the priority cell
+            int dx = Integer.compare(priorityCell[0], x);
+            int dy = Integer.compare(priorityCell[1], y);
+            int newX = x + dx;
+            int newY = y + dy;
+
+            if (grid.isValidCell(newX, newY)) {
+                // Move to the next step and mark it as visited
+                this.x = newX;
+                this.y = newY;
+                grid.markAsVisited(newX, newY);
+                decreaseEnergy(1); // Moving consumes energy
+                System.out.println("Robot " + id + " moved to (" + newX + ", " + newY + ")");
+            } else {
+                // If the cell is invalid, fallback to random movement
+                fallbackRandomMove(grid);
+            }
         } else {
-            // Random fallback movement if no priority cell is found
-            int[] directions = {-1, 0, 1};
-            int newX, newY;
-
-            do {
-                int dx = directions[new Random().nextInt(directions.length)];
-                int dy = directions[new Random().nextInt(directions.length)];
-                newX = x + dx;
-                newY = y + dy;
-            } while (!grid.isValidCell(newX, newY) || grid.isVisited(newX, newY));
-
-            this.x = newX;
-            this.y = newY;
-            decreaseEnergy(1); // Moving consumes energy
-            System.out.println("Robot " + id + " moved randomly to (" + newX + ", " + newY + ")");
+            // If no priority cell is found, fallback to random movement
+            fallbackRandomMove(grid);
         }
     }
 
+    private void fallbackRandomMove(Grid grid) {
+        int[] directions = {-1, 0, 1};
+        int newX, newY;
 
-    /**
-     * Manually move the robot to specific coordinates.
-     */
+        do {
+            int dx = directions[new Random().nextInt(directions.length)];
+            int dy = directions[new Random().nextInt(directions.length)];
+            newX = x + dx;
+            newY = y + dy;
+        } while (!grid.isValidCell(newX, newY) || grid.isVisited(newX, newY));
+
+        this.x = newX;
+        this.y = newY;
+        grid.markAsVisited(newX, newY);
+        decreaseEnergy(1); // Moving consumes energy
+        System.out.println("Robot " + id + " moved randomly to (" + newX + ", " + newY + ")");
+    }
+
+
     public void moveManually(int newX, int newY) {
         this.x = newX;
         this.y = newY;
@@ -195,7 +208,7 @@ public class Robot {
             for (int dy = -visionRange; dy <= visionRange; dy++) {
                 int nx = x + dx;
                 int ny = y + dy;
-                if (grid.isValidCell(nx, ny) && !grid.isVisited(nx, ny)) {
+                if (grid.isValidCell(nx, ny)) {
                     candidates.add(new int[]{nx, ny});
                 }
             }

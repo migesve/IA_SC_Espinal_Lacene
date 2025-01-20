@@ -39,7 +39,7 @@ public class SimFeu {
 
         Robot[] robots = new Robot[numberOfRobots];
         for (int i = 0; i < numberOfRobots; i++) {
-            robots[i] = new Robot(i, 0, gridSize / 2, 2, 5, 10); // Robots démarrent au QG
+            robots[i] = new Robot(i, 0, gridSize / 2, 2, 5, 10); // Robots démarrent au QG avec, les 3 premieres variables et extinguishRange, visionRange et communicationRange
             grid.addRobot(robots[i]);
         }
 
@@ -74,17 +74,8 @@ public class SimFeu {
         System.out.println("\n=== Rapport final de simulation ===");
         System.out.println("Nombre de feux restants : " + simulation.countRemainingFires(grid));
         System.out.println("Nombre de survivants restants : " + simulation.countRemainingSurvivors(grid));
-        System.out.println("Toutes les cellules visitées : " + allCellsVisited(grid));
-    }
-
-    private static boolean allCellsVisited(Grid grid) {
-        for (int x = 0; x < grid.getSize(); x++) {
-            for (int y = 0; y < grid.getSize(); y++) {
-                if (!grid.isVisited(x, y)) {
-                    return false;
-                }
-            }
-        }
-        return true;
+        System.out.println("Survivants sauvés : " + grid.getSurvivorsRescued());
+        System.out.println("Survivants pas sauvés : " + grid.getSurvivorsNotRescued());
+        System.out.println("Feux restants : " + simulation.countRemainingFires(grid));
     }
 }

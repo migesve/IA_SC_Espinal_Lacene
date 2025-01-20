@@ -77,10 +77,6 @@ public class Simulation {
             }
         }
 
-        // Final report
-        System.out.println("=== Rapport final de simulation ===");
-        System.out.println("Survivants sauvés : " + grid.getSurvivorsRescued());
-        System.out.println("Feux restants : " + countRemainingFires(grid));
     }
 
     private void moveRobotToHeadquarters(Robot robot) {
